@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 68d30c68c2dbdf042a54a443167de5ec
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - botmap: {instanceID: 0}
+  - wall: {instanceID: 0}
+  - bottom: {instanceID: 0}
+  - left_edge: {instanceID: 0}
+  - right_edge: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
