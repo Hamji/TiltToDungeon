@@ -17,28 +17,22 @@ public class MakeTileMap : MonoBehaviour
 {
 
     // 맵 좌표 25 X 25
-    public Map[,] map;
+    
     public int max_of_map;
     public int many_of_map;
 
-    public Tilemap botmap;
-    public Tilemap objmap;
-    // 바닥
-    public Tile floor;
+    // 칸
+    public Queue<Room> room_queue;
+    public List<Room> room_list;
 
+    public GameObject room_form;
+    public Transform room_pos;
     // 문
-    public Tile top_door;
-    public Tile left_door;
-    public Tile right_door;
-    public Tile bottom_door;
-
-    public InGameManager manager;
-
-
-    Vector3Int location;
-    Vector3Int door_position;
-
-
+    public GameObject top_door;
+    public GameObject left_door;
+    public GameObject right_door;
+    public GameObject bottom_door;
+    
     // 방해물을 만들기 위하여 필요한 부분 
     // 방해물 List
     public Transform interrupts;
@@ -48,256 +42,182 @@ public class MakeTileMap : MonoBehaviour
     public GameObject interrupt_0;
     public GameObject interrupt_1;
     public GameObject interrupt_2;
-  
+
+
+    // Method
+    
+
+
 
     // Use this for initialization
     void Start()
     {
-        Interrupting(0,0);
-    //    InitInterrupt();
-        
-        // 맵 List 초기화 하며 생성
-        map = new Map[Constants.MAX, Constants.MAX];
-        for (int i = 0; i < Constants.MAX; i++)
-            for (int j = 0; j < Constants.MAX; j++)
-                map[i, j] = new Map();
+        InitElement();
 
-        many_of_map = 0;
-
-
-        while (many_of_map != max_of_map)
+        MakeMap();
+        for(int i = 0; i < room_list.Count; i++)
         {
-            many_of_map = 0;
-
-            botmap.ClearAllTiles();
-            objmap.ClearAllTiles();
-
-            MakeMap();
+            MakeDoor(room_list[i]);
         }
-
-        SetManagerMap();
-    }
-    
-        public void SetManagerMap()
-    {
-        for (int i = 0; i < Constants.MAX; i++)
-            for (int j = 0; j < Constants.MAX; j++)
-                manager.maps[i, j] = map[i, j];
+    //    Debug.Log(room_queue);
     }
 
-    // 필드 그리기 함수
-    public void DrawField(int r, int c)
-    {
-        int current_x = 0;
-        int current_y = 0;
-
-        int current_r = r;
-        int current_c = c;
-
-        current_x = (current_c - 12) * 20;
-        current_y = -(current_r - 12) * 10;
-
-        // 내 현재 위치 그림
-        DrawMap(current_x, current_y, 0);
-
-        DrawDoor(current_x, current_y, -2);
-
-        
-    }
- 
-    // 맵 그리기 함수
-    public void DrawMap(int x, int y, int z)
-    {
-        location.Set(x, y, z);
-
-        // 바닥이랑 벽 그림
-        botmap.BoxFill(location, floor, x, y, x,y);
-    }
-
-    // 문 그리기 함수
-    public void DrawDoor(int x, int y, int z)
-    {
-
-        int current_r, current_c;
-        current_c = (x / 20) + 12;
-        current_r = -(y / 10) + 12;
-
-       
-        if (map[current_r, current_c].door_top == true)
-        {
-            location.Set(x, y + 4, z);
-            objmap.BoxFill(location, top_door, x, y + 4, x, y + 4);
-//            objmap.RefreshTile(location);
-        }
-        if(map[current_r, current_c].door_bottom == true)
-        {
-            location.Set(x, y - 4, z);
-            objmap.BoxFill(location, bottom_door, x, y - 4, x, y - 4);
-//            objmap.RefreshTile(location);
-        }
-        if(map[current_r, current_c].door_right == true)
-        {
-            location.Set(x + 8, y, z);
-            objmap.BoxFill(location, right_door, x + 8, y, x + 8, y);
-//            objmap.RefreshTile(location);
-        }
-        if(map[current_r, current_c].door_left == true)
-        {
-            location.Set(x - 8, y, z);
-            objmap.BoxFill(location, left_door, x - 8, y, x - 8, y);
-//            objmap.RefreshTile(location);
-        }
-    }
-        
     // Update is called once per frame
     void Update()
     {
 
     }
-
-    // 맵 구조 생성 함수
-    public void MakeMap()
+    
+    public void InitElement()
     {
-        InitMap();
-        SetMap(Constants.CENTER, Constants.CENTER);
+        room_pos.position = new Vector3(0, 0, -3);
+        room_queue = new Queue<Room>();
+        room_list = new List<Room>();
+        many_of_map = 0;
+
+        // 맨 처음 방 생성
+        MakeRoom(room_pos);
+    }
+
+    // 룸 삭제
+    public void DeleteRoom(Room del)
+    {
+        Destroy(del.charge);
+        del = null;
     }
 
     // 맵초기화 함수
-    public void InitMap()
+    public void MakeRoom(Transform location)
     {
-        if (map != null)
-            for (int i = 0; i < Constants.MAX; i++)
-                for (int j = 0; j < Constants.MAX; j++)
-                {
-                    map[i, j].check = false;
-                    map[i, j].door_bottom = false;
-                    map[i, j].door_top = false;
-                    map[i, j].door_right = false;
-                    map[i, j].door_left = false;    
-                }
-
-        InitInterrupt();
+        Room temp = new Room();
+        temp.CopyTransform(location);
+   
+        temp.charge = Instantiate(room_form, temp.location, location.rotation);
+        room_queue.Enqueue(temp);
+        room_list.Add(temp);
+        //Debug.Log(room_queue.Dequeue()    );
     }
 
-    // 맵 구조 설정 함수
-    public  void SetMap(int r, int c)
+    // 전체 맵 생성 함수
+    public Room MakeMap()
     {
-        int current_x = (c - 12) * 20;
-        int current_y = -(r - 12) * 10;
-
-
-        if (max_of_map <= many_of_map)
-            return;
-
-        if (map[r, c].check != false)
-            return;
+        int door_many = Random.Range(1, 3);
         
-
-
-        map[r, c].check = true;
+        // Queue가 비었거나 맵의 갯수가 꽉차면 Stop 
+        if (room_queue.Count == 0 || many_of_map == max_of_map)
+            return null;
         many_of_map++;
 
+        Room present_room = room_queue.Dequeue();
         
+        // room의 위치 저장
+        present_room.CopyTransform(room_pos);
 
-        int try_number = 0;
+        if (many_of_map != 0)
+            MakeRoom(room_pos);
 
-        if( many_of_map == 1)
-            try_number = Random.Range(1, 4);
-        else
-            try_number = Random.Range(0, 4);
+        SetDoor(present_room, door_many);
 
+        return present_room;
 
-        // 방향 설정
-        for(int i = 0; i < try_number; i++)
-        {
-            int direction = Random.Range(0, 4);
-            SetDirection(r, c, direction);
-        }
-
-        Interrupting(current_x, current_y);
-//        DrawField(r, c);
-        
-        return;
     }
 
-    //  방향 설정 함수1은 북  시계
-    public void SetDirection(int r, int c, int direction)
+    public void SetDoor(Room room, int door_many)
     {
-        switch (direction)
-        {
-            case 0:
-                map[r, c].door_top = true;
-                map[r - 1, c].door_bottom = true;
-                SetMap(r - 1, c);
-                break;
-            case 1:
-                map[r, c].door_right = true;
-                map[r, c + 1].door_left = true;
-                SetMap(r, c + 1);
-                break;
-            case 2:
-                map[r, c].door_bottom = true;
-                map[r + 1, c].door_top = true;
-                SetMap(r + 1, c);
-                break;
-            case 3:
-                map[r, c].door_left = true;
-                map[r, c - 1].door_right = true;
-                SetMap(r, c - 1);
-                break;
-            default:
-                break;
-        }
+        int door_direction = Random.Range(0, 4);
+        Room connected_room;
 
-        TestMapDirection(r, c);
-        DrawField(r, c);
-    }
-
-    // 맵 검사 
-    public void TestMapDirection(int r, int c)
-    {
-        if (map[r, c].door_top == true)
+        for(int i = 0; i< door_many; i++)
         {
-            if (map[r - 1, c].check == false)
+            room_pos.position = room.location;
+            // 0북 1동 2남 3서
+            switch (door_direction)
             {
-                map[r, c].door_top = false;
-                return;
-            }   
-            map[r - 1, c].door_bottom = true;
-        }
-        else if (map[r - 1, c].door_bottom == true)
-            map[r, c].door_top = true;
+                case 0:
+                    room_pos.position = new Vector3(room.location.x,room.location.y + 10, -3);
+                    connected_room = MakeMap();
+                    if (connected_room != null)
+                    {
+                        room.door_top = true;
+                        connected_room.door_bottom = true;
+                    }
+                    else
+                        return;
+                //    room.door_top = true;
+                    break;
+                case 1:
+                    room_pos.position = new Vector3(room.location.x + 20, room.location.y, -3);
+                    connected_room = MakeMap();
+                    if (connected_room != null)
+                    {
+                        room.door_right = true;
+                        connected_room.door_left = true;
+                    }
+                    else
+                        return;
+                    //    room.door_right = true;
+                    break;
+                case 2:
+                    room_pos.position = new Vector3(room.location.x, room.location.y - 10, -3);
+                    connected_room = MakeMap();
+                    if (connected_room != null)
+                    {
+                        room.door_bottom = true;
+                        connected_room.door_top = true;
+                    }
+                    else
+                        return;
+                    //    room.door_bottom = true;
+                    break;
+                case 3:
+                    room_pos.position = new Vector3(room.location.x - 20, room.location.y, -3);
+                    connected_room = MakeMap();
+                    if (connected_room != null)
+                    {
+                        room.door_left = true;
+                        connected_room.door_right = true;
+                    }
+                    else
+                        return;
+                    //    room.door_left = true;
+                    break;
+            }
 
-        if (map[r, c].door_bottom == true)
+            door_direction = (door_direction + 1) % 4;
+        }
+
+        
+    }
+
+    void MakeDoor(Room room)
+    {
+        if(room.door_top)
         {
-            map[r + 1, c].door_top = true;
+            Vector3 temp = new Vector3(room.location.x, room.location.y + 4, -3);
+            Instantiate(top_door, temp, room_pos.transform.rotation);
         }
-        else if (map[r + 1, c].door_top == true)
-            map[r, c].door_bottom = true;
-
-        if (map[r, c].door_right == true)
+        if(room.door_bottom)
         {
-            map[r, c + 1].door_left = true;
+            Vector3 temp = new Vector3(room.location.x, room.location.y - 4, -3);
+            Instantiate(bottom_door, temp, room_pos.transform.rotation);
         }
-        else if (map[r, c + 1].door_left == true)
-            map[r, c].door_right = true;
-
-        if (map[r, c].door_left == true)
+        if (room.door_left)
         {
-            map[r, c - 1].door_right = true;
+            Vector3 temp = new Vector3(room.location.x - 8, room.location.y, -3);
+            Instantiate(left_door, temp, room_pos.transform.rotation);
         }
-        else if (map[r, c - 1].door_right == true)
-            map[r, c].door_left = true;
-
-
- //       DrawField(r, c);
+        if (room.door_right)
+        {
+            Vector3 temp = new Vector3(room.location.x + 8, room.location.y, -3);
+            Instantiate(right_door, temp, room_pos.transform.rotation);
+        }
     }
 
     // 방해물을 특정 위치에 생성하며 inter_list의 child 로 만듬
     IEnumerator CreateInterrupt(int x, int y)
     {
     //    Debug.Log("호출");
-        Vector3 temp = new Vector3(x+0.5f, y+0.5f, -3);
+        Vector3 temp = new Vector3(x, y, -3);
         // 종류
         int kind = Random.Range(0, 3);
         GameObject intemp;
@@ -322,41 +242,39 @@ public class MakeTileMap : MonoBehaviour
             default:
                 break;
         }
-       
-//        GameObject intemp = Instantiate(interrupt, temp, inter_list.rotation);
-//        intemp.transform.parent = inter_list;
+      
         yield return null;
     }
 
     // CreateInterrupt 호출
     public void Interrupting(int x, int y)
     {
-        StartCoroutine(this.CreateInterrupt(x,y));
+      
     }
-    
+
     public void InitInterrupt()
     {
-        int count = interrupts.transform.childCount;
-        for(int i = inter_list.Count-1;i>-1;i--)
-        {
-            Destroy(inter_list[i]);
-        }
-    }
-}
 
-public class Map
+    }
+
+    
+}
+public class Room
 {
+
+    public Vector3 location;
+
+    public GameObject charge;
     // 문
     public bool door_top;
     public bool door_bottom;
     public bool door_left;
     public bool door_right;
-    
 
     // check 여부
     public bool check;
-
-    public Map()
+    // Use this for initialization
+    public Room()
     {
         door_top = false;
         door_bottom = false;
@@ -364,5 +282,13 @@ public class Map
         door_right = false;
 
         check = false;
+
+    }
+
+    public void CopyTransform(Transform location)
+    {
+        this.location = new Vector3(location.transform.position.x, location.transform.position.y,-3);
     }
 }
+
+

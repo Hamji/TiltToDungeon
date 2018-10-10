@@ -4,11 +4,22 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - botmap: {instanceID: 0}
-  - wall: {instanceID: 0}
-  - bottom: {instanceID: 0}
-  - left_edge: {instanceID: 0}
-  - right_edge: {instanceID: 0}
+  - map_origin: {fileID: 1681148645170254, guid: d985c081ef37e074da9c95641d939867,
+      type: 2}
+  - top_door: {fileID: 1522781266503776, guid: 5b24edcc74af6364d975dd82acca3e91, type: 2}
+  - left_door: {fileID: 1180980150115182, guid: 549140f108b535b4f9d52542c4243ca2,
+      type: 2}
+  - right_door: {fileID: 1787947738840630, guid: e5c0e9301798e6c43a014ee64835713f,
+      type: 2}
+  - bottom_door: {fileID: 1440320356234108, guid: b45c0e1ebf62639418c8f689dc2a47d4,
+      type: 2}
+  - interrupts: {instanceID: 0}
+  - interrupt_0: {fileID: 1863454419659894, guid: 0cc146103cff111459e4e4a747b3b32b,
+      type: 2}
+  - interrupt_1: {fileID: 1733996610779908, guid: aa1067b472ff62e40aed15032910e561,
+      type: 2}
+  - interrupt_2: {fileID: 1961952996766452, guid: f555ceada191f11459b4a4615a4d7a0e,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
