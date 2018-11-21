@@ -4,8 +4,9 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - map_origin: {fileID: 1681148645170254, guid: d985c081ef37e074da9c95641d939867,
-      type: 2}
+  - room_parent: {instanceID: 0}
+  - room_form: {instanceID: 0}
+  - room_pos: {instanceID: 0}
   - top_door: {fileID: 1522781266503776, guid: 5b24edcc74af6364d975dd82acca3e91, type: 2}
   - left_door: {fileID: 1180980150115182, guid: 549140f108b535b4f9d52542c4243ca2,
       type: 2}
@@ -20,6 +21,8 @@ MonoImporter:
       type: 2}
   - interrupt_2: {fileID: 1961952996766452, guid: f555ceada191f11459b4a4615a4d7a0e,
       type: 2}
+  - enemy1: {fileID: 1551345458049952, guid: 924813f247d7ad748826da3e5bf204eb, type: 2}
+  - Boss: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

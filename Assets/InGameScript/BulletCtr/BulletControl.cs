@@ -5,7 +5,7 @@ using UnityEngine;
 public class BulletControl : MonoBehaviour {
 
     // 데미지
-    public int damage = 20;
+    public int damage;
 
     // 총알속도
     public float speed = 2000.0f;

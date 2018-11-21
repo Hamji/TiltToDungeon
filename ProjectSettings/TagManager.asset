@@ -7,6 +7,9 @@ TagManager:
   - wall
   - door
   - Bullet
+  - enemy
+  - enemyBullet
+  - Boss
   layers:
   - Default
   - TransparentFX
